@@ -9,7 +9,8 @@ On the other hand, it maintains a set of meetings (starttime (date + time), id a
 A person can be invited to a meeting, but must also confirm their attendance.
 
 Given a set of attendees of the meeting, there should be a way to ask the system for a recommended available time slot starting from the next day.
-Assume that a meeting is always 1h long The system should return the first available slot (between 9 and 15 o'clock on workdays).
+Assume that a meeting is always 1h long.
+The system should return the first available slot (between 9 and 15 o'clock on workdays).
 If no slot can be found in this or the next work week, no suggestion is returned.
 (Bonus: make the meeting duration dynamic.
 Use `java.time.Duration` and add the necessary AttributeConverter (JPA) and Json converter (jackson or json-b)).
