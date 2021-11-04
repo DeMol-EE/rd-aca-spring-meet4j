@@ -36,8 +36,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <!--		provided instead of runtime so it's available in test as well	-->
-            <scope>provided</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
