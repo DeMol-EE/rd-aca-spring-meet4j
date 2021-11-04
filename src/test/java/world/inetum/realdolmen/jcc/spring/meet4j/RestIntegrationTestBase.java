@@ -11,7 +11,7 @@ public abstract class RestIntegrationTestBase extends IntegrationTestBase {
     protected RequestSpecification spec;
 
     @BeforeEach
-    void clearDatabase(@LocalServerPort int port) {
+    void setUpRestAssured(@LocalServerPort int port) {
         spec = RestAssured.given()
                 .port(port);
     }
