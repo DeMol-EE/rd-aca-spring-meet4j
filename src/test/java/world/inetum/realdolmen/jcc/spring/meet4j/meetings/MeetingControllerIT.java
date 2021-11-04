@@ -5,7 +5,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import world.inetum.realdolmen.jcc.spring.meet4j.DateTimeProducer;
 import world.inetum.realdolmen.jcc.spring.meet4j.EmailService;
 import world.inetum.realdolmen.jcc.spring.meet4j.RestIntegrationTestBase;
@@ -18,6 +23,7 @@ import java.util.Set;
 
 import static org.hamcrest.Matchers.*;
 
+@AutoConfigureMockMvc
 class MeetingControllerIT extends RestIntegrationTestBase {
 
     @MockBean
@@ -26,6 +32,9 @@ class MeetingControllerIT extends RestIntegrationTestBase {
     @MockBean
     EmailService emailService;
 
+    @Autowired
+    MockMvc mockMvc;
+
     @Test
     @Disabled
     void getById() throws Exception {
@@ -33,6 +42,7 @@ class MeetingControllerIT extends RestIntegrationTestBase {
     }
 
     // GET that is NOT too trivial for an IT, covers business logic!
+    // This test shows MockMvc instead of RestAssured
     @Test
     void getProposal() throws Exception {
         insertPerson(1L, "Brecht", "G", "brecht.g@realdolmen.com", "hello");
@@ -46,14 +56,12 @@ class MeetingControllerIT extends RestIntegrationTestBase {
                 .when(dateTimeProducer)
                 .now();
         // act
-        var response = spec
-                .queryParam("inv", Set.of(1L, 2L))
-                .get("/meetings");
+        var response = mockMvc.perform(MockMvcRequestBuilders.get("/meetings")
+                .queryParam("inv", "1", "2"));
         // assert
-        response.then()
-                .body("start", equalTo("2021-05-20T15:00:00"))
-                .body("duration", equalTo("PT1H"))
-                .body("inviteeIds", containsInAnyOrder(1, 2));
+        response.andExpect(MockMvcResultMatchers.jsonPath("$.start", equalTo("2021-05-20T15:00:00")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.duration", equalTo("PT1H")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.inviteeIds", containsInAnyOrder(1, 2)));
     }
 
     @Test
