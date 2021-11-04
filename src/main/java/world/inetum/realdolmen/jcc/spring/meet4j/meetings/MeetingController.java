@@ -40,7 +40,7 @@ public class MeetingController {
 
     @GetMapping("{id}")
     public MeetingDetailsResponse getById(@PathVariable long id) {
-        var meeting =  meetingRepository.getById(id);
+        var meeting = meetingRepository.getById(id);
         return MeetingMapper.toDetails(meeting);
     }
 
@@ -49,10 +49,23 @@ public class MeetingController {
             @RequestParam("inv") @NotNull @Size(min = 2) List<Long> inviteeIds
     ) {
         var now = dateTimeProducer.now();
-        var invitations = meetingRepository
+        var meetings = meetingRepository
                 .getFutureMeetingsForPeople(
                         inviteeIds,
                         now);
+        var invitations = meetings
+                .stream()
+                .flatMap(meeting -> meeting
+                        .getInvitations()
+                        .entrySet()
+                        .stream()
+                        .filter(inv -> inviteeIds.contains(inv.getKey().getId()))
+                        .map(inv -> new Invitation(
+                                meeting.getStart(),
+                                meeting.getDuration(),
+                                inv.getValue()
+                        )))
+                .collect(Collectors.toList());
         var meeting = planningService.proposeMeetingFor(
                 invitations,
                 Duration.ofHours(1),
@@ -77,7 +90,7 @@ public class MeetingController {
                 .collect(Collectors.toMap(p -> p, p -> InvitationStatus.NO_RESPONSE)));
         meetingRepository.save(meeting);
         var exceptions = new ArrayList<EmailService.EmailFailureException>();
-        for (Person invitee: meeting.getInvitations().keySet()) {
+        for (Person invitee : meeting.getInvitations().keySet()) {
             try {
                 emailService.sendEmail(invitee.getEmail(), meeting.getStart());
             } catch (EmailService.EmailFailureException e) {

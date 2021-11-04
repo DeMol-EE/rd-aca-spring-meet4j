@@ -67,9 +67,4 @@ public class Meeting {
         this.invitations = invitations;
     }
 
-    public boolean overlapsWith(LocalDateTime start, LocalDateTime end) {
-        LocalDateTime meetingStart = this.start;
-        LocalDateTime meetingEnd = this.start.plus(duration);
-        return end.isAfter(meetingStart) && start.isBefore(meetingEnd);
-    }
 }

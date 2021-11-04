@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 public class PlanningService {
 
-    public Meeting proposeMeetingFor(List<Meeting> meetings, Duration duration, LocalDateTime now) {
+    public Meeting proposeMeetingFor(List<Invitation> invitations, Duration duration, LocalDateTime now) {
         LocalDateTime threshold = now.plusWeeks(2);
         LocalDateTime moment = now.truncatedTo(ChronoUnit.HOURS).plusHours(1);
         do {
@@ -25,7 +25,7 @@ public class PlanningService {
             }
             LocalDateTime start = moment;
             LocalDateTime end = moment.plus(duration);
-            boolean slotIsFree = meetings.stream()
+            boolean slotIsFree = invitations.stream()
                     .noneMatch(it -> it.overlapsWith(start, end));
             if (slotIsFree) {
                 Meeting proposal = new Meeting();
